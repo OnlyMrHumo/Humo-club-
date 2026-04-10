@@ -1,0 +1,213 @@
+// ═══════════════════════════════════════════════════════
+//  MR. HUMO CLUB — Google Apps Script
+//  Recibe pedidos de la app y los registra en Google Sheets
+//  
+//  INSTRUCCIONES:
+//  1. Ve a script.google.com → Nuevo proyecto
+//  2. Borra todo el código existente
+//  3. Pega este código completo
+//  4. Cambia SHEET_ID por el ID de tu Google Sheet
+//  5. Clic en "Implementar" → "Nueva implementación"
+//  6. Tipo: "Aplicación web"
+//  7. Ejecutar como: "Yo"
+//  8. Quién tiene acceso: "Cualquiera"
+//  9. Copia la URL y pégala en mrhumo_v2.html en SHEETS_URL
+// ═══════════════════════════════════════════════════════
+
+// ⬇️ Cambia este ID por el ID de tu Google Sheet
+// Lo encuentras en la URL de tu sheet:
+// https://docs.google.com/spreadsheets/d/[ESTE_ES_EL_ID]/edit
+const SHEET_ID = 'TU_SHEET_ID_AQUI';
+
+// Nombre de las hojas (pestañas) del spreadsheet
+const SHEET_PEDIDOS  = 'Pedidos';
+const SHEET_RESUMEN  = 'Resumen del Día';
+
+// ═══════════════════════════════════════════════════════
+//  doPost — recibe el pedido desde la app
+// ═══════════════════════════════════════════════════════
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    registrarPedido(data);
+    actualizarResumen(data);
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  doGet — prueba rápida (abre la URL en el navegador)
+// ═══════════════════════════════════════════════════════
+function doGet() {
+  return ContentService
+    .createTextOutput('✅ Mr. Humo Club - Apps Script activo')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+// ═══════════════════════════════════════════════════════
+//  registrarPedido — escribe en la hoja "Pedidos"
+// ═══════════════════════════════════════════════════════
+function registrarPedido(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_PEDIDOS);
+
+  // Crear hoja si no existe
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_PEDIDOS);
+    // Encabezados con formato
+    const headers = [
+      '# Pedido', 'Fecha', 'Hora', 'Cliente', 'WhatsApp',
+      'Productos', 'Tipo', 'Total ($)', 'Punto de Entrega',
+      'Zona', 'Entrega', 'Dirección', 'Código Promo', 'Estado'
+    ];
+    const headerRow = sheet.getRange(1, 1, 1, headers.length);
+    headerRow.setValues([headers]);
+    headerRow.setBackground('#002DFF');
+    headerRow.setFontColor('#FFD600');
+    headerRow.setFontWeight('bold');
+    headerRow.setFontSize(11);
+    sheet.setFrozenRows(1);
+    sheet.setColumnWidth(1, 80);
+    sheet.setColumnWidth(4, 160);
+    sheet.setColumnWidth(5, 130);
+    sheet.setColumnWidth(6, 300);
+    sheet.setColumnWidth(9, 160);
+  }
+
+  // Número de pedido auto-incremental
+  const lastRow = sheet.getLastRow();
+  const orderNum = lastRow; // row 1 = headers, row 2 = pedido #1
+
+  // Nueva fila de pedido
+  const newRow = [
+    orderNum,
+    data.fecha,
+    data.hora,
+    data.cliente,
+    data.whatsapp,
+    data.productos,
+    data.tipo,
+    data.total,
+    data.punto,
+    data.zona,
+    data.entrega,
+    data.direccion || '',
+    data.codigo || '',
+    data.estado || 'Pendiente'
+  ];
+
+  sheet.appendRow(newRow);
+
+  // Colorear según estado de entrega
+  const newRowIndex = sheet.getLastRow();
+  const statusCell = sheet.getRange(newRowIndex, 14);
+  if (data.entrega === 'HOY') {
+    statusCell.setBackground('#E8F5E9'); // verde claro
+  } else {
+    statusCell.setBackground('#FFF8E1'); // amarillo claro
+  }
+
+  // Total en negrita
+  sheet.getRange(newRowIndex, 8).setFontWeight('bold');
+}
+
+// ═══════════════════════════════════════════════════════
+//  actualizarResumen — actualiza la hoja "Resumen del Día"
+// ═══════════════════════════════════════════════════════
+function actualizarResumen(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sheet = ss.getSheetByName(SHEET_RESUMEN);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_RESUMEN);
+    sheet.getRange('A1').setValue('MR. HUMO CLUB — RESUMEN DEL DÍA')
+      .setFontSize(14).setFontWeight('bold').setFontColor('#002DFF');
+    sheet.getRange('A2').setValue('Actualizado automáticamente con cada pedido');
+    sheet.getRange('A3').setValue('').setBackground('#002DFF');
+    // Labels
+    const labels = ['Métrica', 'Hoy', 'Total acumulado'];
+    sheet.getRange('A5:C5').setValues([labels])
+      .setBackground('#1a1a3a').setFontColor('#FFD600').setFontWeight('bold');
+  }
+
+  // Contar pedidos de hoy
+  const pedidosSheet = ss.getSheetByName(SHEET_PEDIDOS);
+  if (!pedidosSheet) return;
+
+  const today = data.fecha;
+  const allData = pedidosSheet.getDataRange().getValues();
+  
+  let pedidosHoy = 0, totalHoy = 0, pedidosTot = 0, totalTot = 0;
+  let menudeoHoy = 0, mayoreoHoy = 0;
+
+  for (let i = 1; i < allData.length; i++) {
+    const row = allData[i];
+    const fecha = row[1];
+    const monto = parseFloat(row[7]) || 0;
+    const tipo = row[6];
+    pedidosTot++;
+    totalTot += monto;
+    if (fecha === today) {
+      pedidosHoy++;
+      totalHoy += monto;
+      if (tipo === 'Mayoreo') mayoreoHoy++;
+      else menudeoHoy++;
+    }
+  }
+
+  // Escribir resumen
+  const rows = [
+    ['📦 Pedidos totales', pedidosHoy, pedidosTot],
+    ['💰 Ventas ($)', `$${totalHoy.toLocaleString('es-MX')}`, `$${totalTot.toLocaleString('es-MX')}`],
+    ['🛒 Menudeo', menudeoHoy, '—'],
+    ['📦 Mayoreo', mayoreoHoy, '—'],
+    ['🕐 Último pedido', data.hora, data.fecha],
+    ['👤 Último cliente', data.cliente, data.whatsapp],
+  ];
+
+  sheet.getRange(6, 1, rows.length, 3).setValues(rows);
+  sheet.getRange(6, 1, rows.length, 3)
+    .setBackground('#F8F9FF')
+    .setBorder(true, true, true, true, true, true, '#E0E0E0', SpreadsheetApp.BorderStyle.SOLID);
+
+  // Highlight total del día
+  sheet.getRange(7, 2).setFontWeight('bold').setFontColor('#002DFF').setFontSize(13);
+}
+
+// ═══════════════════════════════════════════════════════
+//  marcarEntregado — ejecutar manualmente desde Sheets
+//  Cambia estado a "Entregado" para el pedido #N
+// ═══════════════════════════════════════════════════════
+function marcarEntregado() {
+  const ui = SpreadsheetApp.getUi();
+  const response = ui.prompt('¿Qué # de pedido quieres marcar como Entregado?');
+  if (response.getSelectedButton() !== ui.Button.OK) return;
+  
+  const num = parseInt(response.getResponseText());
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_PEDIDOS);
+  const data = sheet.getDataRange().getValues();
+  
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] == num) {
+      sheet.getRange(i + 1, 14).setValue('✅ Entregado').setBackground('#C8E6C9');
+      ui.alert(`✅ Pedido #${num} marcado como Entregado`);
+      return;
+    }
+  }
+  ui.alert(`No se encontró el pedido #${num}`);
+}
+
+// ═══════════════════════════════════════════════════════
+//  onOpen — agrega menú en Google Sheets
+// ═══════════════════════════════════════════════════════
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu('🔥 Mr. Humo')
+    .addItem('✅ Marcar pedido como Entregado', 'marcarEntregado')
