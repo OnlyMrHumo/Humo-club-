@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mr. Humo Club</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════
+   DESIGN TOKENS — Electric Humo
+═══════════════════════════════════ */
+:root{
+  --blue:#002DFF; --blue2:#1E1EF5;
+  --cream:#F2EFE6; --navy:#2D2D5E; --navy2:#1a1a3a;
+  --yellow:#FFD600; --pink:#FF367A; --green:#00E676; --orange:#FF6B35;
+  --white:#fff;
+  --surf:rgba(255,255,255,0.05); --surf2:rgba(255,255,255,0.09);
+  --bord:rgba(255,255,255,0.1);
+  --text:#F2EFE6; --muted:rgba(242,239,230,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--navy2);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);border-radius:4px;}
+input,select,button,textarea{font-family:'Plus Jakarta Sans',sans-serif;}
+
+/* ═══════════════════════════════════
+   STORE SHELL
+═══════════════════════════════════ */
+#storeView{display:flex;flex-direction:column;height:100%;}
+
+/* urgent strip */
+.urgent{background:var(--yellow);color:var(--navy2);text-align:center;font-size:12px;font-weight:800;padding:8px 12px;letter-spacing:.04em;flex-shrink:0;}
+
+/* topbar */
+.s-topbar{background:var(--navy2);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.s-logo{font-size:22px;font-weight:900;letter-spacing:-.02em;color:#fff;}
+.s-logo span{color:var(--yellow);}
+.s-topbar-right{display:flex;gap:10px;align-items:center;}
+.cart-fab{position:relative;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 13px;font-size:18px;cursor:pointer;}
+.cart-dot{position:absolute;top:-5px;right:-5px;background:var(--pink);color:#fff;font-size:10px;font-weight:900;width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;}
+
+/* ticker */
+.ticker{background:var(--blue2);overflow:hidden;padding:9px 0;flex-shrink:0;}
+.ticker-track{display:flex;gap:0;animation:tick 22s linear infinite;white-space:nowrap;}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.t-item{font-size:12px;font-weight:700;color:#fff;padding:0 24px;opacity:.9;}
+.t-dot{color:var(--yellow);margin-right:8px;}
+
+/* store scroll */
+.s-scroll{flex:1;overflow-y:auto;background:var(--cream);}
+
+/* hero */
+.hero{margin:14px;border-radius:20px;background:linear-gradient(135deg,var(--blue2),var(--navy));padding:26px 20px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-30px;right:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,214,0,.1);}
+.hero-badge{display:inline-block;background:var(--yellow);color:var(--navy2);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border-radius:100px;margin-bottom:10px;}
+.hero h1{font-size:28px;font-weight:900;line-height:1.1;color:#fff;letter-spacing:-.02em;}
+.hero h1 span{color:var(--yellow);}
+.hero p{font-family:'Be Vietnam Pro',sans-serif;font-size:12px;color:rgba(255,255,255,.65);margin-top:8px;line-height:1.5;}
+.hero-mascot{position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:52px;opacity:.3;}
+
+/* mode toggle */
+.mode-tog{display:flex;margin:0 14px 14px;border-radius:14px;overflow:hidden;background:rgba(0,0,0,.06);border:1.5px solid rgba(0,0,0,.08);}
+.m-opt{flex:1;padding:11px;text-align:center;font-size:13px;font-weight:700;cursor:pointer;color:rgba(45,45,94,.5);transition:all .2s;}
+.m-opt.active{background:var(--blue2);color:#fff;border-radius:12px;}
+
+/* search */
+.s-search{margin:0 14px 14px;width:calc(100% - 28px);background:#fff;border:1.5px solid rgba(0,45,255,.15);border-radius:14px;padding:12px 16px;font-size:14px;color:var(--navy2);outline:none;}
+.s-search::placeholder{color:rgba(45,45,94,.4);}
+
+/* section eyebrow */
+.eyebrow{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--blue2);padding:0 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.eyebrow::after{content:'';flex:1;height:1.5px;background:rgba(0,45,255,.12);}
+
+/* brand scroll */
+.brand-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 14px 14px;scrollbar-width:none;}
+.brand-scroll::-webkit-scrollbar{display:none;}
+.brand-chip{flex-shrink:0;background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:100px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--navy2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.brand-chip.active{background:var(--blue2);color:#fff;border-color:var(--blue2);}
+
+/* product grid */
+.prod-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 14px;margin-bottom:24px;}
+.p-card{background:#fff;border:1.5px solid rgba(0,0,0,.06);border-radius:18px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative;}
+.p-card:active{transform:scale(.97);}
+.p-hot{position:absolute;top:8px;left:8px;z-index:2;background:var(--pink);color:#fff;font-size:9px;font-weight:900;letter-spacing:.06em;padding:3px 8px;border-radius:100px;}
+.p-img{width:100%;height:110px;background:linear-gradient(135deg,rgba(0,45,255,.08),rgba(30,30,245,.04));display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden;}
+.p-img img{width:100%;height:100%;object-fit:cover;}
+.p-body{padding:12px;}
+.p-brand{font-size:9px;font-weight:800;color:var(--blue2);text-transform:uppercase;letter-spacing:.1em;}
+.p-name{font-size:13px;font-weight:800;color:var(--navy2);margin-top:2px;line-height:1.3;}
+.p-flav{font-size:10px;color:rgba(45,45,94,.5);font-family:'Be Vietnam Pro',sans-serif;margin-top:3px;}
+.p-price-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.p-price{font-size:17px;font-weight:900;color:var(--navy2);}
+.p-price small{font-size:10px;font-weight:600;color:rgba(45,45,94,.45);}
+.p-add{background:var(--yellow);color:var(--navy2);border:none;border-radius:10px;width:32px;height:32px;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.p-add:active{transform:scale(.88);}
+.p-out{opacity:.35;pointer-events:none;}
+
+/* delivery section */
+.delivery-section{background:var(--navy2);padding:28px 14px;}
+.delivery-section .eyebrow{color:rgba(255,255,255,.5);}
+.delivery-section .eyebrow::after{background:rgba(255,255,255,.1);}
+.d-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:16px;}
+.d-title span{color:var(--yellow);}
+.d-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.d-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;}
+.d-card.blue{background:rgba(0,45,255,.2);border-color:rgba(30,30,245,.4);}
+.d-card-icon{font-size:24px;margin-bottom:8px;}
+.d-card-title{font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;}
+.d-card-desc{font-size:12px;font-family:'Be Vietnam Pro',sans-serif;color:rgba(255,255,255,.65);line-height:1.5;}
+.d-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.d-tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);}
+.d-tag.green{background:rgba(0,230,118,.15);color:#00E676;}
+.d-tag.yellow{background:rgba(255,214,0,.15);color:var(--yellow);}
+.d-note{font-size:11px;color:rgba(255,255,255,.4);margin-top:8px;font-family:'Be Vietnam Pro',sans-serif;}
+
+/* delivery points */
+.pts-banner{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:18px;margin-top:4px;}
+.pts-title{font-size:16px;font-weight:900;color:#fff;margin-bottom:12px;}
+.pts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.pt-pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:700;color:rgba(255,255,255,.75);}
+.pts-note{font-size:11px;color:rgba(255,255,255,.35);margin-top:12px;font-family:'Be Vietnam Pro',sans-serif;text-align:center;}
+
+/* vape care */
+.care-section{background:var(--cream);padding:28px 14px;}
+.care-title{font-size:24px;font-weight:900;color:var(--navy2);letter-spacing:-.02em;margin-bottom:16px;}
+.care-title span{color:var(--blue2);}
+.care-tips{display:flex;flex-direction:column;gap:10px;}
+.care-tip{background:#fff;border:1.5px solid rgba(0,0,0,.06);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;}
+.care-tip-icon{font-size:22px;flex-shrink:0;}
+.care-tip-text{font-size:13px;font-family:'Be Vietnam Pro',sans-serif;color:rgba(45,45,94,.8);line-height:1.5;}
+.care-tip-text strong{color:var(--navy2);}
+
+/* faq */
+.faq-section{background:var(--navy2);padding:28px 14px 32px;}
+.faq-section .eyebrow{color:rgba(255,255,255,.4);}
+.faq-section .eyebrow::after{background:rgba(255,255,255,.08);}
+.faq-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:16px;}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.08);}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:16px 0;cursor:pointer;font-size:14px;font-weight:700;color:#fff;gap:12px;}
+.faq-ch{font-size:20px;color:var(--yellow);flex-shrink:0;transition:transform .2s;}
+.faq-ch.open{transform:rotate(45deg);}
+.faq-a{display:none;font-size:13px;font-family:'Be Vietnam Pro',sans-serif;color:rgba(255,255,255,.65);padding-bottom:14px;line-height:1.6;}
+.faq-a.open{display:block;}
+
+/* promo banner */
+.promo-banner{background:linear-gradient(135deg,var(--blue2),var(--blue));margin:14px;border-radius:18px;padding:18px;position:relative;overflow:hidden;}
+.promo-banner::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,214,0,.15);}
+.pb-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:6px;}
+.pb-code{font-size:26px;font-weight:900;color:var(--yellow);letter-spacing:.05em;}
+.pb-desc{font-size:12px;font-family:'Be Vietnam Pro',sans-serif;color:rgba(255,255,255,.7);margin-top:4px;}
+.pb-copy{background:var(--yellow);color:var(--navy2);border:none;border-radius:10px;padding:9px 16px;font-size:12px;font-weight:800;cursor:pointer;margin-top:12px;display:inline-block;}
+
+/* reviews */
+.reviews-section{background:var(--cream);padding:24px 14px 32px;}
+.rev-title{font-size:22px;font-weight:900;color:var(--navy2);margin-bottom:14px;}
+.rev-cards{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.rev-cards::-webkit-scrollbar{display:none;}
+.rev-card{flex-shrink:0;width:220px;background:#fff;border:1.5px solid rgba(0,0,0,.06);border-radius:16px;padding:14px;}
+.rev-stars{font-size:13px;margin-bottom:6px;}
+.rev-text{font-size:12px;font-family:'Be Vietnam Pro',sans-serif;color:rgba(45,45,94,.75);line-height:1.5;margin-bottom:8px;}
+.rev-name{font-size:11px;font-weight:700;color:var(--navy2);}
+
+/* bottom nav */
+.s-bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,58,.97);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.1);display:flex;padding:8px 0 20px;z-index:20;}
+.sb-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(242,239,230,.4);transition:all .2s;padding:6px 4px;}
+.sb-item .sbi{font-size:20px;}
+.sb-item.active{color:var(--yellow);}
+
+/* ═══════════════════════════════════
+   PRODUCT DETAIL SHEET
+═══════════════════════════════════ */
+.sheet-ov{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);display:none;align-items:flex-end;}
+.sheet-ov.open{display:flex;}
+.sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:22px 18px 40px;}
+.sh-handle{width:40px;height:4px;background:rgba(0,0,0,.12);border-radius:2px;margin:0 auto 18px;}
+.sh-img{width:100%;height:170px;border-radius:16px;background:linear-gradient(135deg,rgba(0,45,255,.08),rgba(30,30,245,.04));display:flex;align-items:center;justify-content:center;font-size:56px;overflow:hidden;margin-bottom:14px;}
+.sh-img img{width:100%;height:100%;object-fit:cover;border-radius:16px;}
+.sh-brand{font-size:11px;font-weight:800;color:var(--blue2);text-transform:uppercase;letter-spacing:.1em;}
+.sh-name{font-size:22px;font-weight:900;color:var(--navy2);margin-top:3px;}
+.sh-prices{display:flex;gap:10px;margin:14px 0;}
+.sh-price{flex:1;background:rgba(0,0,0,.04);border:1.5px solid rgba(0,0,0,.06);border-radius:14px;padding:12px;text-align:center;}
+.sh-price .sp-l{font-size:9px;font-weight:800;color:rgba(45,45,94,.5);text-transform:uppercase;letter-spacing:.08em;}
+.sh-price .sp-v{font-size:20px;font-weight:900;color:var(--navy2);margin-top:3px;}
+.sh-price.active{border-color:var(--blue2);background:rgba(0,45,255,.06);}
+.sh-price.active .sp-v{color:var(--blue2);}
+.sh-slabel{font-size:11px;font-weight:700;color:rgba(45,45,94,.5);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;}
+.sh-flavors{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.fl-chip{padding:8px 14px;border-radius:100px;font-size:12px;font-weight:700;background:rgba(0,0,0,.05);border:1.5px solid rgba(0,0,0,.08);color:rgba(45,45,94,.6);cursor:pointer;transition:all .15s;}
+.fl-chip.sel{border-color:var(--blue2);color:var(--blue2);background:rgba(0,45,255,.06);}
+.sh-qty-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.qty-ctrl{display:flex;align-items:center;background:rgba(0,0,0,.05);border-radius:12px;overflow:hidden;}
+.qty-btn{width:38px;height:38px;background:transparent;border:none;font-size:20px;font-weight:700;color:var(--navy2);cursor:pointer;}
+.qty-num{font-size:16px;font-weight:800;color:var(--navy2);padding:0 14px;}
+.sh-add{width:100%;background:var(--yellow);color:var(--navy2);border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;transition:all .2s;}
+.sh-add:active{transform:scale(.98);}
+
+/* ═══════════════════════════════════
+   CART
+═══════════════════════════════════ */
+#cartView{display:none;flex-direction:column;height:100%;}
+.cart-hdr{background:var(--navy2);padding:14px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;}
+.cart-ttl{font-size:18px;font-weight:900;color:#fff;}
+.cart-scroll{flex:1;overflow-y:auto;padding:14px 14px 20px;background:var(--cream);}
+.c-item{background:#fff;border:1.5px solid rgba(0,0,0,.06);border-radius:16px;padding:13px;margin-bottom:10px;display:flex;align-items:center;gap:11px;}
+.ci-img{width:48px;height:48px;border-radius:10px;background:rgba(0,45,255,.06);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden;}
+.ci-img img{width:100%;height:100%;object-fit:cover;border-radius:10px;}
+.ci-info{flex:1;min-width:0;}
+.ci-name{font-size:13px;font-weight:700;color:var(--navy2);}
+.ci-sub{font-size:11px;color:rgba(45,45,94,.5);font-family:'Be Vietnam Pro',sans-serif;}
+.ci-price{font-size:14px;font-weight:900;color:var(--blue2);margin-top:3px;}
+.ci-rm{font-size:18px;cursor:pointer;color:rgba(45,45,94,.35);flex-shrink:0;}
+
+/* order form */
+.o-form{background:#fff;border:1.5px solid rgba(0,0,0,.06);border-radius:20px;padding:18px;margin-top:10px;}
+.of-title{font-size:16px;font-weight:900;color:var(--navy2);margin-bottom:14px;}
+.of-in{width:100%;background:rgba(0,0,0,.04);border:1.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--navy2);outline:none;margin-bottom:10px;transition:border .2s;}
+.of-in:focus{border-color:var(--blue2);}
+.of-in::placeholder{color:rgba(45,45,94,.35);}
+.of-sel{width:100%;background:rgba(0,0,0,.04);border:1.5px solid rgba(0,0,0,.08);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--navy2);outline:none;margin-bottom:10px;-webkit-appearance:none;}
+
+/* schedule card */
+.sch-card{background:rgba(0,45,255,.08);border:1.5px solid rgba(0,45,255,.15);border-radius:14px;padding:13px;margin-bottom:14px;display:flex;gap:10px;}
+.sch-icon{font-size:20px;flex-shrink:0;}
+.sch-text{font-size:12px;font-family:'Be Vietnam Pro',sans-serif;color:var(--navy2);line-height:1.5;}
+.sch-text strong{color:var(--blue2);}
+
+/* cart summary */
+.c-summary{background:rgba(0,45,255,.06);border:1.5px solid rgba(0,45,255,.12);border-radius:16px;padding:14px;margin:10px 0;}
+.cs-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px;}
+.cs-row:last-child{margin-bottom:0;font-size:15px;font-weight:900;color:var(--navy2);}
+.cs-l{color:rgba(45,45,94,.55);font-family:'Be Vietnam Pro',sans-serif;}
+.cs-v{color:var(--navy2);font-weight:700;}
+
+.wa-btn{width:100%;background:var(--green);color:var(--navy2);border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;margin-top:6px;}
+.wa-btn:active{transform:scale(.98);}
+
+/* ═══════════════════════════════════
+   ADMIN
+═══════════════════════════════════ */
+#loginScreen{position:fixed;inset:0;z-index:100;background:var(--navy2);display:none;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
+.ll{font-size:34px;font-weight:900;color:#fff;letter-spacing:-.02em;margin-bottom:4px;}
+.ll span{color:var(--yellow);}
+.ls{font-size:13px;color:var(--muted);margin-bottom:34px;font-family:'Be Vietnam Pro',sans-serif;}
+.lcard{width:100%;max-width:340px;background:var(--surf);border:1px solid var(--bord);border-radius:22px;padding:22px 18px;}
+.rchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.rchip{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--bord);color:var(--muted);transition:all .2s;}
+.rchip.active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,214,0,.1);}
+.ll-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block;}
+.ll-in{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:11px;padding:12px 13px;font-size:15px;color:#fff;outline:none;margin-bottom:12px;transition:border .2s;}
+.ll-in:focus{border-color:var(--blue2);}
+.ll-in::placeholder{color:rgba(255,255,255,.25);}
+.ll-btn{width:100%;background:var(--yellow);color:var(--navy2);border:none;border-radius:11px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;}
+.ll-err{font-size:12px;color:var(--pink);text-align:center;margin-top:8px;font-family:'Be Vietnam Pro',sans-serif;display:none;}
+
+#adminView{display:none;flex-direction:column;height:100%;}
+.a-topbar{background:var(--navy2);padding:13px 15px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.a-logo{font-size:17px;font-weight:900;color:#fff;letter-spacing:-.01em;}
+.a-logo span{color:var(--yellow);}
+.a-right{display:flex;gap:8px;align-items:center;}
+.rbadge{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;}
+.rbadge.admin{background:rgba(0,45,255,.3);color:#7B9BFF;}
+.rbadge.vendedor{background:rgba(255,54,122,.15);color:var(--pink);}
+.rbadge.repartidor{background:rgba(0,230,118,.12);color:#00E676;}
+.logout{background:var(--surf);border:1px solid var(--bord);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;}
+.a-tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--bord);background:var(--navy2);flex-shrink:0;scrollbar-width:none;}
+.a-tabs::-webkit-scrollbar{display:none;}
+.a-tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 15px;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;flex-shrink:0;}
+.a-tab .ti{font-size:17px;}
+.a-tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+.a-content{flex:1;overflow-y:auto;padding:16px 14px 100px;}
+.a-bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(26,26,58,.97);backdrop-filter:blur(16px);border-top:1px solid var(--bord);display:flex;padding:8px 0 20px;z-index:20;}
+.abn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);transition:all .2s;}
+.abn .bi{font-size:19px;}
+.abn.active{color:var(--yellow);}
+
+/* admin cards */
+.a-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.a-title{font-size:18px;font-weight:900;color:#fff;}
+.a-title span{color:var(--yellow);}
+.a-addbtn{background:var(--yellow);color:var(--navy2);border:none;border-radius:11px;padding:9px 14px;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.a-addbtn:active{transform:scale(.96);}
+.a-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.a-stat{background:var(--surf);border:1px solid var(--bord);border-radius:13px;padding:11px;text-align:center;}
+.a-stat-n{font-size:19px;font-weight:900;color:#fff;}
+.a-stat-l{font-size:9px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;margin-top:2px;}
+.a-srch{width:100%;background:var(--surf);border:1px solid var(--bord);border-radius:11px;padding:11px 13px;font-size:14px;color:#fff;outline:none;margin-bottom:13px;}
+.a-srch::placeholder{color:var(--muted);}
+
+.a-prod{background:var(--surf);border:1px solid var(--bord);border-radius:13px;padding:11px;display:flex;align-items:center;gap:9px;margin-bottom:7px;}
+.ap-img{width:48px;height:48px;border-radius:9px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;overflow:hidden;}
+.ap-img img{width:100%;height:100%;object-fit:cover;border-radius:9px;}
+.ap-info{flex:1;min-width:0;}
+.ap-name{font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ap-sub{font-size:10px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;}
+.ap-prices{display:flex;gap:5px;margin-top:4px;}
+.apt{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.apt.m{background:rgba(0,45,255,.25);color:#7B9BFF;}
+.apt.y{background:rgba(255,214,0,.15);color:var(--yellow);}
+.a-stk{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-align:center;flex-shrink:0;}
+.a-stk.ok{background:rgba(0,230,118,.12);color:#00E676;}
+.a-stk.low{background:rgba(255,107,53,.15);color:#FF6B35;}
+.a-stk.out{background:rgba(255,54,122,.15);color:var(--pink);}
+.a-prod-btns{display:flex;gap:5px;flex-shrink:0;}
+.ico-btn{background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:7px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .15s;}
+.ico-btn:active{transform:scale(.88);}
+
+/* admin promos */
+.promo-card{background:var(--surf);border:1px solid var(--bord);border-radius:14px;padding:13px;margin-bottom:8px;}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.pc-code{font-size:16px;font-weight:900;color:var(--yellow);}
+.pc-desc{font-size:12px;color:var(--muted);margin-top:3px;font-family:'Be Vietnam Pro',sans-serif;}
+.pc-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.pc-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;background:rgba(255,255,255,.07);color:var(--muted);}
+.pc-pill.on{background:rgba(0,230,118,.12);color:#00E676;}
+.tog{width:42px;height:22px;border-radius:11px;background:rgba(255,255,255,.1);position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
+.tog.on{background:var(--green);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:8px;background:#fff;transition:left .2s;}
+.tog.on::after{left:23px;}
+
+/* admin points */
+.pt-card{background:var(--surf);border:1px solid var(--bord);border-radius:13px;padding:11px;margin-bottom:7px;display:flex;align-items:center;gap:9px;}
+.pt-zone{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--navy2);flex-shrink:0;}
+.zN{background:#FFD600;}.zC{background:#1E1EF5;color:#fff;}.zS{background:#FF367A;}.zO{background:#00E676;}.zE{background:#FF6B35;}
+.pt-info{flex:1;min-width:0;}
+.pt-name{font-size:13px;font-weight:700;color:#fff;}
+.pt-time{font-size:11px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;margin-top:1px;}
+.pt-type{font-size:9px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:3px;display:inline-block;}
+.tt-free{background:rgba(0,230,118,.12);color:#00E676;}
+.tt-paid{background:rgba(255,107,53,.15);color:#FF6B35;}
+
+/* users */
+.u-card{background:var(--surf);border:1px solid var(--bord);border-radius:14px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.u-av{width:38px;height:38px;border-radius:10px;background:var(--blue2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;}
+
+/* settings */
+.sg-title{font-size:10px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--yellow);margin:14px 0 9px;}
+.s-item{background:var(--surf);border:1px solid var(--bord);border-radius:13px;padding:13px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;}
+.s-item:active{background:var(--surf2);}
+.s-left{display:flex;align-items:center;gap:10px;}
+.s-ico{font-size:18px;}
+.s-t{font-size:13px;font-weight:700;color:#fff;}
+.s-s{font-size:11px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;margin-top:2px;}
+.s-arr{color:var(--muted);}
+
+/* modals */
+.m-ov{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
+.m-ov.open{display:flex;}
+.m-box{background:var(--navy);border-radius:24px 24px 0 0;padding:20px 17px 40px;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;}
+.m-handle{width:40px;height:4px;background:rgba(255,255,255,.2);border-radius:2px;margin:0 auto 17px;}
+.m-title{font-size:16px;font-weight:900;color:#fff;margin-bottom:16px;}
+.f-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block;}
+.f-in{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:11px;padding:12px 12px;font-size:14px;color:#fff;outline:none;margin-bottom:13px;transition:border .2s;}
+.f-in:focus{border-color:var(--blue2);}
+.f-in::placeholder{color:rgba(255,255,255,.25);}
+.f-sel{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:11px;padding:12px 12px;font-size:14px;color:#fff;outline:none;margin-bottom:13px;-webkit-appearance:none;}
+.f-sel option{background:#2D2D5E;}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.img-drop{width:100%;border:2px dashed var(--bord);border-radius:13px;padding:18px;text-align:center;margin-bottom:12px;cursor:pointer;transition:all .2s;}
+.img-drop:hover{border-color:var(--yellow);}
+.img-drop .di{font-size:24px;margin-bottom:6px;}
+.img-drop .dt{font-size:12px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;}
+
+/* flavors in modal */
+.flv-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+.ftag{background:rgba(255,255,255,.08);border:1px solid var(--bord);border-radius:100px;padding:5px 11px;font-size:12px;color:#fff;display:flex;align-items:center;gap:5px;}
+.ftag .frm{cursor:pointer;color:var(--muted);font-size:14px;line-height:1;}
+.fadd-row{display:flex;gap:7px;margin-bottom:14px;}
+.fadd-in{flex:1;background:rgba(255,255,255,.07);border:1px solid var(--bord);border-radius:10px;padding:10px 12px;font-size:13px;color:#fff;outline:none;}
+.fadd-btn{background:var(--surf2);border:1px solid var(--bord);border-radius:10px;padding:10px 13px;font-size:16px;cursor:pointer;color:#fff;}
+
+#aImgPreview{width:100%;height:120px;object-fit:cover;border-radius:11px;margin-bottom:10px;display:none;}
+.m-save{width:100%;background:var(--yellow);color:var(--navy2);border:none;border-radius:13px;padding:14px;font-size:14px;font-weight:900;cursor:pointer;margin-top:4px;}
+.m-save:active{transform:scale(.98);}
+.m-cancel{width:100%;background:transparent;color:var(--muted);border:1px solid var(--bord);border-radius:13px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px;}
+
+/* confirm */
+.conf-ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px;}
+.conf-ov.open{display:flex;}
+.conf-box{background:var(--navy);border:1px solid var(--bord);border-radius:18px;padding:24px 20px;width:100%;max-width:300px;text-align:center;}
+.conf-t{font-size:16px;font-weight:900;color:#fff;margin-bottom:6px;}
+.conf-m{font-size:12px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;margin-bottom:20px;}
+.conf-btns{display:flex;gap:8px;}
+.conf-yes{flex:1;background:var(--pink);color:#fff;border:none;border-radius:11px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;}
+.conf-no{flex:1;background:var(--surf);border:1px solid var(--bord);color:var(--muted);border-radius:11px;padding:12px;font-size:13px;font-weight:700;cursor:pointer;}
+
+/* mode fab */
+.mode-fab{position:fixed;bottom:90px;right:14px;z-index:300;background:var(--yellow);color:var(--navy2);border:none;border-radius:100px;padding:10px 15px;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 4px 20px rgba(255,214,0,.4);transition:all .2s;white-space:nowrap;}
+.mode-fab:active{transform:scale(.95);}
+
+/* toast */
+#toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--navy2);font-size:13px;font-weight:800;padding:11px 18px;border-radius:100px;z-index:500;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     STORE
+═══════════════════════════════════ -->
+<div id="storeView">
+  <div class="urgent">⚡ Pide antes de las 10 AM — recibe HOY · Envío nacional desde $200</div>
+  <div class="s-topbar">
+    <div class="s-logo">MR.<span>HUMO</span></div>
+    <div class="s-topbar-right">
+      <div class="cart-fab" onclick="openCart()">🛒<span class="cart-dot" id="cartDot">0</span></div>
+    </div>
+  </div>
+
+  <!-- ticker -->
+  <div class="ticker">
+    <div class="ticker-track">
+      <span class="t-item"><span class="t-dot">★</span>Envíos a toda la república</span>
+      <span class="t-item"><span class="t-dot">★</span>Precios 60% más bajos</span>
+      <span class="t-item"><span class="t-dot">★</span>Mayoreo y Menudeo</span>
+      <span class="t-item"><span class="t-dot">★</span>Death Row · Elf Bar · Lost Mary · Waka</span>
+      <span class="t-item"><span class="t-dot">★</span>Pide antes 10AM = recibe hoy</span>
+      <span class="t-item"><span class="t-dot">★</span>Envíos L–J vía Skydrop</span>
+      <span class="t-item"><span class="t-dot">★</span>Dropshipping disponible</span>
+      <span class="t-item"><span class="t-dot">★</span>Envíos a toda la república</span>
+      <span class="t-item"><span class="t-dot">★</span>Precios 60% más bajos</span>
+      <span class="t-item"><span class="t-dot">★</span>Mayoreo y Menudeo</span>
+      <span class="t-item"><span class="t-dot">★</span>Death Row · Elf Bar · Lost Mary · Waka</span>
+      <span class="t-item"><span class="t-dot">★</span>Pide antes 10AM = recibe hoy</span>
+      <span class="t-item"><span class="t-dot">★</span>Envíos L–J vía Skydrop</span>
+      <span class="t-item"><span class="t-dot">★</span>Dropshipping disponible</span>
+    </div>
+  </div>
+
+  <div class="s-scroll" id="storeScroll">
+    <!-- hero -->
+    <div class="hero">
+      <div class="hero-badge">🔥 FAMILY PRICES</div>
+      <h1>Vapes al<br><span>mejor precio</span></h1>
+      <p>Pachuca, Hidalgo · Envío nacional<br>Mayoreo y menudeo · Dropshipping</p>
+      <div class="hero-mascot">☁️</div>
+    </div>
+
+    <!-- promo -->
+    <div class="promo-banner">
+      <div class="pb-label">Código de descuento</div>
+      <div class="pb-code">HUMO10</div>
+      <div class="pb-desc">10% de descuento en tu primera compra</div>
+      <button class="pb-copy" onclick="copyCode()">📋 Copiar código</button>
+    </div>
+
+    <!-- mode toggle -->
+    <div class="mode-tog">
+      <div class="m-opt active" id="modeMenu" onclick="setMode('menu')">🛒 Menudeo</div>
+      <div class="m-opt" id="modeMayo" onclick="setMode('mayo')">📦 Mayoreo</div>
+    </div>
+
+    <!-- search -->
+    <input class="s-search" id="storeSearch" placeholder="🔍  Buscar producto o sabor..." oninput="renderProds()"/>
+
+    <!-- brand filter -->
+    <div class="eyebrow">Marcas</div>
+    <div class="brand-scroll" id="brandScroll"></div>
+
+    <!-- products -->
+    <div class="eyebrow" style="margin-top:4px;">Productos disponibles</div>
+    <div class="prod-grid" id="prodGrid"></div>
+
+    <!-- delivery section -->
+    <div class="delivery-section">
+      <div class="eyebrow">Entregas</div>
+      <div class="d-title">¿Cómo te llega<br><span>tu pedido?</span></div>
+      <div class="d-cards">
+        <div class="d-card blue">
+          <div class="d-card-icon">🚚</div>
+          <div class="d-card-title">Envío a República Mexicana</div>
+          <div class="d-card-desc">Toda la república vía <strong>Skydrop</strong>. Desde <strong>$200 MXN</strong> según código postal y peso.</div>
+          <div class="d-tags"><span class="d-tag">📅 Lunes a Jueves</span><span class="d-tag">📦 Skydrop</span><span class="d-tag">🇲🇽 Todo México</span></div>
+          <div class="d-note">⚠️ Solo L–J para garantizar seguridad del paquete.</div>
+        </div>
+        <div class="d-card">
+          <div class="d-card-icon">🛵</div>
+          <div class="d-card-title">Entrega Personal — Menudeo</div>
+          <div class="d-card-desc">Rutas de entrega en Pachuca. En precio menudeo la entrega es <strong>sin costo</strong> en puntos marcados.</div>
+          <div class="d-tags"><span class="d-tag green">✅ Gratis en puntos</span><span class="d-tag">📍 21 puntos</span></div>
+        </div>
+        <div class="d-card">
+          <div class="d-card-icon">📦</div>
+          <div class="d-card-title">Entrega Personal — Mayoreo</div>
+          <div class="d-card-desc">Con precio preferencial de mayoreo, la entrega personal tiene <strong>+$30 MXN</strong> extra.</div>
+          <div class="d-tags"><span class="d-tag yellow">+$30 MXN</span><span class="d-tag">💰 Precio imbatible</span></div>
+        </div>
+      </div>
+      <!-- 21 points -->
+      <div class="pts-banner">
+        <div class="pts-title">📍 Puntos de Entrega — Pachuca</div>
+        <div class="pts-grid" id="ptsGrid"></div>
+        <div class="pts-note">¿Tu punto no está en la lista? Escríbenos y te cotizamos.</div>
+      </div>
+    </div>
+
+    <!-- vape care -->
+    <div class="care-section">
+      <div class="eyebrow">Guía de uso</div>
+      <div class="care-title">Cuidados para<br><span>tu vapo ☁️</span></div>
+      <div class="care-tips">
+        <div class="care-tip"><div class="care-tip-icon">🌊</div><div class="care-tip-text"><strong>No vapear bajo el mar</strong> — Aleja tu vape del agua y humedad extrema. Daña batería y circuitos.</div></div>
+        <div class="care-tip"><div class="care-tip-icon">🧹</div><div class="care-tip-text"><strong>Limpia la boquilla con un cotonette</strong> — Boquilla limpia = mejor sabor e higiene. Hazlo semanalmente.</div></div>
+        <div class="care-tip"><div class="care-tip-icon">🚫</div><div class="care-tip-text"><strong>No compartas con migajeros</strong> — Tu vape es tuyo. Compartirlo desgasta la batería y arruina la experiencia.</div></div>
+        <div class="care-tip"><div class="care-tip-icon">❄️</div><div class="care-tip-text"><strong>Guárdalo en lugar fresco</strong> — El calor directo daña la batería y altera el sabor del líquido.</div></div>
+        <div class="care-tip"><div class="care-tip-icon">🔋</div><div class="care-tip-text"><strong>No cargues a luz directa</strong> — Carga en sombra y temperatura ambiente para proteger la batería.</div></div>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <div class="eyebrow">Confianza & Envíos</div>
+      <div class="faq-title">Preguntas<br>Frecuentes</div>
+      <div id="faqList"></div>
+    </div>
+
+    <!-- reviews -->
+    <div class="reviews-section">
+      <div class="eyebrow">Comunidad</div>
+      <div class="rev-title">Lo que dice<br>la FAMILY 🔥</div>
+      <div class="rev-cards">
+        <div class="rev-card"><div class="rev-stars">⭐⭐⭐⭐⭐</div><div class="rev-text">"Llegó el mismo día que pedí antes de las 10. Increíble servicio y el sabor del Waka mango es 10/10."</div><div class="rev-name">@karla_hz · Pachuca</div></div>
+        <div class="rev-card"><div class="rev-stars">⭐⭐⭐⭐⭐</div><div class="rev-text">"Precios imbatibles para mayoreo. Ya son mis proveedores fijos, confiables al 100%."</div><div class="rev-name">@reseller_mx · CDMX</div></div>
+        <div class="rev-card"><div class="rev-stars">⭐⭐⭐⭐⭐</div><div class="rev-text">"Pedí Lost Mary lemon mint y en 2 horas ya lo tenía. La entrega personal es lo mejor."</div><div class="rev-name">@dany_vlogs · Pachuca</div></div>
+        <div class="rev-card"><div class="rev-stars">⭐⭐⭐⭐⭐</div><div class="rev-text">"Death Row watermelon ice — no hay de otra. Mr. Humo siempre tiene stock y precio justo."</div><div class="rev-name">@mike_smoke · Hidalgo</div></div>
+      </div>
+    </div>
+
+    <div style="height:80px;"></div>
+  </div>
+
+  <div class="s-bnav">
+    <div class="sb-item active"><span class="sbi">🏠</span>Inicio</div>
+    <div class="sb-item" onclick="openCart()"><span class="sbi">🛒</span>Carrito</div>
+    <div class="sb-item" onclick="storeScroll.querySelector('.faq-section').scrollIntoView({behavior:'smooth'})"><span class="sbi">❓</span>FAQ</div>
+    <div class="sb-item" onclick="storeScroll.querySelector('.delivery-section').scrollIntoView({behavior:'smooth'})"><span class="sbi">📍</span>Puntos</div>
+  </div>
+</div>
+
+<!-- PRODUCT SHEET -->
+<div class="sheet-ov" id="sheetOv" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-img" id="shImg"></div>
+    <div class="sh-brand" id="shBrand"></div>
+    <div class="sh-name" id="shName"></div>
+    <div class="sh-prices">
+      <div class="sh-price" id="shPMenu"><div class="sp-l">Menudeo</div><div class="sp-v" id="shVMenu"></div></div>
+      <div class="sh-price" id="shPMayo"><div class="sp-l">Mayoreo</div><div class="sp-v" id="shVMayo"></div></div>
+    </div>
+    <div class="sh-slabel">Elige sabor</div>
+    <div class="sh-flavors" id="shFlavors"></div>
+    <div class="sh-qty-row">
+      <div class="sh-slabel" style="margin-bottom:0">Cantidad</div>
+      <div class="qty-ctrl">
+        <button class="qty-btn" onclick="chQty(-1)">−</button>
+        <span class="qty-num" id="shQty">1</span>
+        <button class="qty-btn" onclick="chQty(1)">+</button>
+      </div>
+    </div>
+    <button class="sh-add" onclick="addToCart()">🛒 Agregar al carrito</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     CART
+═══════════════════════════════════ -->
+<div id="cartView">
+  <div class="cart-hdr">
+    <button class="back-btn" onclick="closeCart()">← Volver</button>
+    <div class="cart-ttl">Mi Carrito</div>
+  </div>
+  <div class="cart-scroll" id="cartScroll"></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ADMIN LOGIN
+═══════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="ll">MR.<span>HUMO</span></div>
+  <div class="ls">Panel Administrador</div>
+  <div class="lcard">
+    <div class="rchips" id="roleChips">
+      <div class="rchip active" data-role="admin">👑 Admin</div>
+      <div class="rchip" data-role="vendedor">🛒 Vendedor</div>
+      <div class="rchip" data-role="repartidor">🛵 Repartidor</div>
+    </div>
+    <label class="ll-label">Contraseña</label>
+    <input class="ll-in" type="password" id="loginPass" placeholder="••••••••"/>
+    <button class="ll-btn" onclick="doLogin()">Entrar →</button>
+    <div class="ll-err" id="loginErr">Contraseña incorrecta</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     ADMIN VIEW
+═══════════════════════════════════ -->
+<div id="adminView">
+  <div class="a-topbar">
+    <div class="a-logo">ADMIN · MR.<span>HUMO</span></div>
+    <div class="a-right">
+      <span class="rbadge" id="roleBadge"></span>
+      <div class="logout" onclick="doLogout()">Salir</div>
+    </div>
+  </div>
+  <div class="a-tabs" id="adminTabs"></div>
+  <div class="a-content" id="adminContent"></div>
+  <div class="a-bnav" id="adminBnav"></div>
+</div>
+
+<!-- MODE FAB -->
+<button class="mode-fab" id="modeFab" onclick="toggleMode()">⚙️ Admin</button>
+
+<!-- ══ MODALS ══ -->
+<!-- Product -->
+<div class="m-ov" id="mProduct">
+  <div class="m-box">
+    <div class="m-handle"></div>
+    <div class="m-title" id="mProdTitle">Nuevo Producto</div>
+    <label class="f-lbl">Marca</label>
+    <select class="f-sel" id="fBrand">
+      <option value="">Seleccionar...</option>
+      <option>Waka</option><option>Elf Bar</option><option>Lost Mary</option>
+      <option>Death Row</option><option>iJoy</option><option>Elux</option>
+      <option>V-Fly</option><option>Bugatti</option><option>Otra</option>
+    </select>
+    <label class="f-lbl">Nombre del producto</label>
+    <input class="f-in" id="fName" placeholder="Ej: Solo 6000 puffs"/>
+    <label class="f-lbl">Imagen</label>
+    <img id="aImgPreview" src="" alt=""/>
+    <div class="img-drop" onclick="document.getElementById('aImgFile').click()">
+      <div class="di">📷</div>
+      <div class="dt">Toca para subir foto · JPG o PNG</div>
+    </div>
+    <input type="file" id="aImgFile" accept="image/*" style="display:none" onchange="handleImg(event)"/>
+    <input class="f-in" id="fImgUrl" placeholder="O pega URL de imagen..." oninput="prevUrl(this.value)" style="margin-top:-5px"/>
+    <!-- FLAVOR MANAGER -->
+    <label class="f-lbl" style="margin-top:6px">
+      Sabores / Variantes
+      <span style="font-size:10px;font-weight:400;color:var(--muted);margin-left:6px;">Escribe y toca ＋ para agregar</span>
+    </label>
+    <div class="flv-row" id="adminFlavors"></div>
+    <div class="fadd-row">
+      <input class="fadd-in" id="flvIn" placeholder="Ej: Mango Ice, Watermelon..." onkeydown="if(event.key==='Enter'){event.preventDefault();addFlv();}"/>
+      <button class="fadd-btn" onclick="addFlv()">＋</button>
+    </div>
+    <div class="f-row">
+      <div><label class="f-lbl">Precio Menudeo $</label><input class="f-in" id="fPMenu" type="number" placeholder="0"/></div>
+      <div><label class="f-lbl">Precio Mayoreo $</label><input class="f-in" id="fPMayo" type="number" placeholder="0"/></div>
+    </div>
+    <label class="f-lbl">Stock actual</label>
+    <input class="f-in" id="fStock" type="number" placeholder="0"/>
+    <label class="f-lbl">Categoría</label>
+    <select class="f-sel" id="fCat"><option value="vape">🔥 Vape</option><option value="lifestyle">✨ Lifestyle</option><option value="accesorio">🔧 Accesorio</option></select>
+    <button class="m-save" onclick="saveProduct()">💾 Guardar Producto</button>
+    <button class="m-cancel" onclick="closeM('mProduct')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Promo -->
+<div class="m-ov" id="mPromo">
+  <div class="m-box">
+    <div class="m-handle"></div>
+    <div class="m-title">Nueva Promoción</div>
+    <label class="f-lbl">Código</label>
+    <input class="f-in" id="pCode" placeholder="Ej: HUMO10" style="text-transform:uppercase"/>
+    <label class="f-lbl">Descripción</label>
+    <input class="f-in" id="pDesc" placeholder="Ej: 10% en primera compra"/>
+    <div class="f-row">
+      <div><label class="f-lbl">Tipo</label>
+        <select class="f-sel" id="pType"><option value="pct">% Descuento</option><option value="fixed">$ Fijo</option><option value="free">Envío gratis</option></select>
+      </div>
+      <div><label class="f-lbl">Valor</label><input class="f-in" id="pVal" type="number" placeholder="10"/></div>
+    </div>
+    <label class="f-lbl">Válido hasta</label>
+    <input class="f-in" id="pExpiry" type="date"/>
+    <button class="m-save" onclick="savePromo()">💾 Guardar</button>
+    <button class="m-cancel" onclick="closeM('mPromo')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Point -->
+<div class="m-ov" id="mPoint">
+  <div class="m-box">
+    <div class="m-handle"></div>
+    <div class="m-title" id="mPtTitle">Nuevo Punto</div>
+    <label class="f-lbl">Nombre</label>
+    <input class="f-in" id="ptName" placeholder="Ej: Plaza Juárez"/>
+    <label class="f-lbl">Zona</label>
+    <select class="f-sel" id="ptZone"><option value="N">Norte</option><option value="C">Centro</option><option value="S">Sur</option><option value="O">Oriente</option><option value="E">Express</option></select>
+    <label class="f-lbl">Horario</label>
+    <input class="f-in" id="ptTime" placeholder="Ej: 2:00 – 4:00 PM"/>
+    <label class="f-lbl">Tipo</label>
+    <select class="f-sel" id="ptType"><option value="free">Gratis (menudeo)</option><option value="paid">Con recargo (mayoreo)</option></select>
+    <button class="m-save" onclick="savePoint()">💾 Guardar</button>
+    <button class="m-cancel" onclick="closeM('mPoint')">Cancelar</button>
+  </div>
+</div>
+
+<!-- User -->
+<div class="m-ov" id="mUser">
+  <div class="m-box">
+    <div class="m-handle"></div>
+    <div class="m-title">Nuevo Usuario</div>
+    <label class="f-lbl">Nombre</label>
+    <input class="f-in" id="uName" placeholder="Nombre completo"/>
+    <label class="f-lbl">Rol</label>
+    <select class="f-sel" id="uRole"><option value="vendedor">🛒 Vendedor</option><option value="repartidor">🛵 Repartidor</option><option value="admin">👑 Admin</option></select>
+    <label class="f-lbl">Contraseña</label>
+    <input class="f-in" id="uPass" type="password" placeholder="••••••••"/>
+    <button class="m-save" onclick="saveUser()">💾 Crear</button>
+    <button class="m-cancel" onclick="closeM('mUser')">Cancelar</button>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="conf-ov" id="confOv">
+  <div class="conf-box">
+    <div class="conf-t">¿Eliminar?</div>
+    <div class="conf-m" id="confMsg">Esta acción no se puede deshacer.</div>
+    <div class="conf-btns">
+      <button class="conf-yes" id="confYes">Eliminar</button>
+      <button class="conf-no" onclick="closeConf()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════
+const PASSWORDS = {admin:'MR2024',vendedor:'MR2024',repartidor:'MR2024'};
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzurV0cMSJ0mBxuw_Izwkxu5ABVbiOWix67zuqUylhf/exec';
+const VENDORS = [
+  {id:'v1', name:'Vendedor 1', number:'528137132134'},
+  {id:'v2', name:'Vendedor 2', number:'527721059123'},
+  {id:'v3', name:'Vendedor 3', number:'527731585640'},
+];
+
+// ═══════════════════════════════════
+// DATA
+// ═══════════════════════════════════
+let products = [
+  {id:'p1',brand:'Waka',name:'Solo 6000',img:'',flavors:['Mango Ice','Watermelon Ice','Blue Razz','Lychee Ice','Strawberry Watermelon','Peach Ice'],priceMenu:180,priceMayo:130,stock:45,cat:'vape'},
+  {id:'p2',brand:'Waka',name:'Smash 6000',img:'',flavors:['Double Apple','Grape Ice','Mint','Passion Fruit'],priceMenu:175,priceMayo:125,stock:30,cat:'vape'},
+  {id:'p3',brand:'Elf Bar',name:'BC5000',img:'',flavors:['Strawberry Kiwi','Peach Mango Watermelon','Blue Razz Lemonade','Cranberry Grape'],priceMenu:160,priceMayo:115,stock:8,cat:'vape'},
+  {id:'p4',brand:'Elf Bar',name:'TE6000',img:'',flavors:['Watermelon','Blueberry Ice','Pineapple Coconut'],priceMenu:165,priceMayo:120,stock:20,cat:'vape'},
+  {id:'p5',brand:'Lost Mary',name:'OS5000',img:'',flavors:['Lemon Mint','Tropical','Grape Ice','Pineapple'],priceMenu:170,priceMayo:125,stock:0,cat:'vape'},
+  {id:'p6',brand:'Lost Mary',name:'MO5000',img:'',flavors:['Peach Strawnana','Watermelon Ice','Blueberry'],priceMenu:168,priceMayo:122,stock:15,cat:'vape'},
+  {id:'p7',brand:'Death Row',name:'Vape 7000',img:'',flavors:['Watermelon Ice','Berry Mix','Mango Peach'],priceMenu:200,priceMayo:150,stock:22,cat:'vape'},
+  {id:'p8',brand:'Death Row',name:'Vape 5000',img:'',flavors:['Strawberry Ice','Pineapple Ice'],priceMenu:185,priceMayo:140,stock:12,cat:'vape'},
+  {id:'p9',brand:'iJoy',name:'Bar IC8000',img:'',flavors:['Cool Mint','Strawberry Banana','Lemon Tea'],priceMenu:155,priceMayo:110,stock:25,cat:'vape'},
+  {id:'p10',brand:'Elux',name:'Legend 3500',img:'',flavors:['Blueberry Sour Raspberry','Peach Mango','Pink Lemonade'],priceMenu:145,priceMayo:100,stock:18,cat:'vape'},
+  {id:'p11',brand:'V-Fly',name:'Pro 6000',img:'',flavors:['Grape','Watermelon Bubblegum','Cherry Ice'],priceMenu:150,priceMayo:108,stock:10,cat:'vape'},
+  {id:'p12',brand:'Bugatti',name:'Vape 9000',img:'',flavors:['Tobacco','Menthol','Vanilla Custard'],priceMenu:220,priceMayo:165,stock:6,cat:'vape'},
+];
+
+let promos = [
+  {id:'pr1',code:'HUMO10',desc:'10% en primera compra',type:'pct',value:10,expiry:'2024-12-31',active:true},
+  {id:'pr2',code:'FAMILY20',desc:'20% para clientes frecuentes',type:'pct',value:20,expiry:'2024-12-31',active:false},
+];
+
+let points = [
+  {id:'pt1',name:'Zona Plateada',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt2',name:'CUC',zone:'C',time:'12:00 – 2:00 PM',type:'free'},
+  {id:'pt3',name:'Toledo',zone:'C',time:'12:00 – 2:00 PM',type:'free'},
+  {id:'pt4',name:'C. Doria',zone:'C',time:'1:00 – 3:00 PM',type:'free'},
+  {id:'pt5',name:'Plaza de Toros',zone:'C',time:'1:00 – 3:00 PM',type:'free'},
+  {id:'pt6',name:'Tec de Pachuca',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt7',name:'San Antonio',zone:'S',time:'3:00 – 5:00 PM',type:'free'},
+  {id:'pt8',name:'Siglo XXI',zone:'O',time:'3:00 – 5:00 PM',type:'free'},
+  {id:'pt9',name:'Venta Prieta',zone:'O',time:'3:00 – 5:00 PM',type:'free'},
+  {id:'pt10',name:'Vértice',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt11',name:'Plaza Bella',zone:'S',time:'4:00 – 6:00 PM',type:'free'},
+  {id:'pt12',name:'Vía Dorada',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt13',name:'Tulipanes',zone:'S',time:'4:00 – 6:00 PM',type:'free'},
+  {id:'pt14',name:'Villas de Pachuca',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt15',name:'CENHIES',zone:'C',time:'1:00 – 3:00 PM',type:'free'},
+  {id:'pt16',name:'Soriana del Valle',zone:'O',time:'3:00 – 5:00 PM',type:'free'},
+  {id:'pt17',name:'Explanada',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt18',name:'Matilde',zone:'S',time:'4:00 – 6:00 PM',type:'free'},
+  {id:'pt19',name:'Prepa 1',zone:'C',time:'12:00 – 2:00 PM',type:'free'},
+  {id:'pt20',name:'Galerías',zone:'N',time:'2:00 – 4:00 PM',type:'free'},
+  {id:'pt21',name:'Central',zone:'E',time:'4:00 – 6:00 PM',type:'paid'},
+];
+
+let users = [
+  {id:'u1',name:'Mr. Humo',role:'admin',pass:'MR2024'},
+  {id:'u2',name:'Vendedor 1',role:'vendedor',pass:'MR2024'},
+  {id:'u3',name:'Vendedor 2',role:'vendedor',pass:'MR2024'},
+  {id:'u4',name:'Vendedor 3',role:'repartidor',pass:'MR2024'},
+];
+
+const FAQS = [
+  {q:'⏰ ¿Cuándo llega mi pedido si pido antes de las 10 AM?',a:'Si haces tu pedido antes de las 10 AM de lunes a jueves, te lo entregamos ESE MISMO DÍA en tu punto de Pachuca. Después de las 10 AM se agenda para el día siguiente.'},
+  {q:'🚚 ¿Cuánto cuesta el envío a otra ciudad?',a:'Enviamos a toda la república vía Skydrop. El costo parte desde $200 MXN según tu código postal, fecha y peso. Te confirmamos el costo exacto al hacer tu pedido por WhatsApp.'},
+  {q:'📅 ¿Qué días hacen envíos foráneos?',a:'Solo enviamos de lunes a jueves para garantizar que tu paquete esté resguardado y no pase el fin de semana en bodega. Pedidos del viernes se envían el lunes siguiente.'},
+  {q:'💰 ¿Cuál es la diferencia entre mayoreo y menudeo?',a:'Menudeo: precio unitario normal, entrega personal gratis en puntos de Pachuca. Mayoreo: precio preferencial por volumen, entrega personal tiene +$30 MXN extra. El ahorro en precio supera ese costo.'},
+  {q:'📦 ¿Hay mínimo de compra en mayoreo?',a:'Escríbenos por WhatsApp y te indicamos el mínimo por marca. Generalmente manejamos mínimos razonables para que puedas arrancar sin invertir de más.'},
+  {q:'💳 ¿Qué métodos de pago aceptan?',a:'Transferencia bancaria, OXXO Pay, tarjeta débito/crédito y efectivo en entrega personal. Te confirmamos opciones disponibles al hacer tu pedido.'},
+  {q:'📍 ¿Qué pasa si mi punto no está en la lista?',a:'Tiene un costo extra de entrega. Escríbenos por WhatsApp y te cotizamos según tu zona. Siempre buscamos la forma de llegar a ti.'},
+  {q:'🤝 ¿Hacen dropshipping?',a:'Sí. Si tienes tienda online o vendes por redes, podemos enviar directo a tus clientes con tu nombre. Escríbenos al WhatsApp para hablar de los detalles.'},
+];
+
+// ═══════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════
+let appMode='store';
+let priceMode='menu';
+let cart=[];
+let currentRole=null;
+let adminTab='inventory';
+let editingId=null;
+let editingFlavors=[];
+let sheetProd=null;
+let sheetFlav=null;
+let sheetQtyVal=1;
+let activeBrand='Todos';
+
+// ═══════════════════════════════════
+// STORE RENDER
+// ═══════════════════════════════════
+function initStore(){
+  renderBrands();
+  renderProds();
+  renderPts();
+  renderFaq();
+}
+
+function renderBrands(){
+  const brands=['Todos',...new Set(products.map(p=>p.brand))];
+  document.getElementById('brandScroll').innerHTML=brands.map(b=>
+    `<div class="brand-chip${b===activeBrand?' active':''}" onclick="setBrand('${b}')">${b}</div>`
+  ).join('');
+}
+
+function setBrand(b){
+  activeBrand=b;
+  renderBrands();
+  renderProds();
+}
+
+function setMode(m){
+  priceMode=m;
+  document.getElementById('modeMenu').classList.toggle('active',m==='menu');
+  document.getElementById('modeMayo').classList.toggle('active',m==='mayo');
+  renderProds();
+}
+
+function renderProds(){
+  const q=(document.getElementById('storeSearch')?.value||'').toLowerCase();
+  let list=products.filter(p=>p.stock>0);
+  if(activeBrand!=='Todos')list=list.filter(p=>p.brand===activeBrand);
+  if(q)list=list.filter(p=>(p.brand+' '+p.name+' '+p.flavors.join(' ')).toLowerCase().includes(q));
+  const grid=document.getElementById('prodGrid');
+  if(!grid)return;
+  if(!list.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px 0;color:rgba(45,45,94,.4);font-family:'Be Vietnam Pro',sans-serif;">No hay productos disponibles</div>`;return;}
+  grid.innerHTML=list.map(p=>{
+    const price=priceMode==='menu'?p.priceMenu:p.priceMayo;
+    const hot=p.stock<=10;
+    const img=p.img?`<img src="${p.img}" alt="">`:`<span>📦</span>`;
+    return `<div class="p-card${p.stock===0?' p-out':''}" onclick="openSheet('${p.id}')">
+      ${hot?`<div class="p-hot">🔥 ÚLTIMOS</div>`:''}
+      <div class="p-img">${img}</div>
+      <div class="p-body">
+        <div class="p-brand">${p.brand}</div>
+        <div class="p-name">${p.name}</div>
+        <div class="p-flav">${p.flavors.length} sabores</div>
+        <div class="p-price-row">
+          <div class="p-price">$${price}<small> MXN</small></div>
+          <button class="p-add" onclick="event.stopPropagation();quickAdd('${p.id}')">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPts(){
+  document.getElementById('ptsGrid').innerHTML=
+    points.map(p=>`<div class="pt-pill">📍 ${p.name}</div>`).join('');
+}
+
+function renderFaq(){
+  document.getElementById('faqList').innerHTML=FAQS.map((f,i)=>`
+  <div class="faq-item">
+    <div class="faq-q" onclick="togFaq(${i})">
+      <span>${f.q}</span>
+      <span class="faq-ch" id="fch${i}">+</span>
+    </div>
+    <div class="faq-a" id="fa${i}">${f.a}</div>
+  </div>`).join('');
+}
+
+function togFaq(i){
+  const a=document.getElementById('fa'+i);
+  const ch=document.getElementById('fch'+i);
+  const open=a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(x=>x.classList.remove('open'));
+  document.querySelectorAll('.faq-ch').forEach(x=>{x.classList.remove('open');x.textContent='+';});
+  if(!open){a.classList.add('open');ch.classList.add('open');ch.textContent='×';}
+}
+
+function copyCode(){
+  navigator.clipboard&&navigator.clipboard.writeText('HUMO10');
+  showToast('📋 Código HUMO10 copiado');
+}
+
+// ═══════════════════════════════════
+// PRODUCT SHEET
+// ═══════════════════════════════════
+function openSheet(id){
+  const p=products.find(x=>x.id===id);if(!p)return;
+  sheetProd=p;sheetFlav=p.flavors[0]||null;sheetQtyVal=1;
+  const si=document.getElementById('shImg');
+  si.innerHTML=p.img?`<img src="${p.img}" alt="">`:'📦';
+  document.getElementById('shBrand').textContent=p.brand;
+  document.getElementById('shName').textContent=p.name;
+  document.getElementById('shVMenu').textContent='$'+p.priceMenu;
+  document.getElementById('shVMayo').textContent='$'+p.priceMayo+' c/u';
+  document.getElementById('shPMenu').className='sh-price'+(priceMode==='menu'?' active':'');
+  document.getElementById('shPMayo').className='sh-price'+(priceMode==='mayo'?' active':'');
+  document.getElementById('shQty').textContent='1';
+  document.getElementById('shFlavors').innerHTML=p.flavors.map(f=>
+    `<div class="fl-chip${f===sheetFlav?' sel':''}" onclick="selFlav(this,'${f}')">${f}</div>`
+  ).join('');
+  document.getElementById('sheetOv').classList.add('open');
+}
+
+function selFlav(el,f){
+  sheetFlav=f;
+  document.querySelectorAll('.fl-chip').forEach(x=>x.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function chQty(d){sheetQtyVal=Math.max(1,sheetQtyVal+d);document.getElementById('shQty').textContent=sheetQtyVal;}
+
+function addToCart(){
+  if(!sheetFlav&&sheetProd.flavors.length>0){showToast('⚠️ Elige un sabor');return;}
+  const price=priceMode==='menu'?sheetProd.priceMenu:sheetProd.priceMayo;
+  cart.push({id:Date.now(),product:sheetProd,flavor:sheetFlav,qty:sheetQtyVal,price,mode:priceMode});
+  updateBadge();
+  document.getElementById('sheetOv').classList.remove('open');
+  showToast('✅ '+sheetProd.brand+' '+sheetProd.name+' agregado');
+}
+
+function quickAdd(pid){
+  const p=products.find(x=>x.id===pid);if(!p)return;
+  const price=priceMode==='menu'?p.priceMenu:p.priceMayo;
+  cart.push({id:Date.now(),product:p,flavor:p.flavors[0]||'',qty:1,price,mode:priceMode});
+  updateBadge();
+  showToast('✅ '+p.brand+' '+p.name);
+}
+
+function updateBadge(){
+  const tot=cart.reduce((s,i)=>s+i.qty,0);
+  const d=document.getElementById('cartDot');
+  if(tot>0){d.style.display='flex';d.textContent=tot;}else{d.style.display='none';}
+}
+
+// ═══════════════════════════════════
+// CART
+// ═══════════════════════════════════
+function openCart(){
+  document.getElementById('storeView').style.display='none';
+  document.getElementById('cartView').style.display='flex';
+  document.getElementById('modeFab').style.display='none';
+  renderCart();
+}
+function closeCart(){
+  document.getElementById('cartView').style.display='none';
+  document.getElementById('storeView').style.display='flex';
+  document.getElementById('modeFab').style.display='block';
+}
+
+function renderCart(){
+  const el=document.getElementById('cartScroll');
+  if(!cart.length){
+    el.innerHTML=`<div style="text-align:center;padding:60px 20px;color:rgba(45,45,94,.4)"><div style="font-size:48px;margin-bottom:12px;">🛒</div><div style="font-family:'Be Vietnam Pro',sans-serif;font-size:14px;">Carrito vacío</div><br><button class="sh-add" style="max-width:200px;margin:0 auto;display:block" onclick="closeCart()">Ver productos</button></div>`;
+    return;
+  }
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const now=new Date();
+  const isToday=now.getHours()<10;
+  el.innerHTML=`
+  <div class="sch-card">
+    <div class="sch-icon">⏰</div>
+    <div class="sch-text">${isToday?'Pediste antes de las 10 AM — <strong>entrega HOY</strong>':'Ya pasó el corte de las 10 AM — <strong>entrega programada para mañana</strong>'}</div>
+  </div>
+  ${cart.map(item=>`
+  <div class="c-item">
+    <div class="ci-img">${item.product.img?`<img src="${item.product.img}" alt="">`:'📦'}</div>
+    <div class="ci-info">
+      <div class="ci-name">${item.product.brand} ${item.product.name}</div>
+      <div class="ci-sub">${item.flavor} · x${item.qty} · ${item.mode==='mayo'?'Mayoreo':'Menudeo'}</div>
+      <div class="ci-price">$${(item.price*item.qty).toLocaleString('es-MX')} MXN</div>
+    </div>
+    <div class="ci-rm" onclick="rmFromCart(${item.id})">🗑️</div>
+  </div>`).join('')}
+  <div class="c-summary">
+    <div class="cs-row"><span class="cs-l">Subtotal</span><span class="cs-v">$${sub.toLocaleString('es-MX')}</span></div>
+    <div class="cs-row"><span class="cs-l">Entrega personal</span><span class="cs-v" style="color:var(--green)">Gratis</span></div>
+    <div class="cs-row"><span class="cs-l">Total</span><span>$${sub.toLocaleString('es-MX')} MXN</span></div>
+  </div>
+  <div class="o-form">
+    <div class="of-title">📋 Datos de entrega</div>
+    <input class="of-in" id="ofName" placeholder="Tu nombre completo"/>
+    <input class="of-in" id="ofPhone" type="tel" placeholder="Tu número de WhatsApp"/>
+    <select class="of-sel" id="ofVendor">
+      <option value="">¿Con quién quieres hacer tu pedido?</option>
+      ${VENDORS.map(v=>`<option value="${v.id}">${v.name}</option>`).join('')}
+    </select>
+    <select class="of-sel" id="ofPoint">
+      <option value="">Selecciona punto de entrega...</option>
+      ${points.map(p=>`<option value="${p.id}">${p.name} · ${p.time}</option>`).join('')}
+      <option value="skydrop">📦 Envío nacional (Skydrop +$200)</option>
+    </select>
+    <input class="of-in" id="ofAddress" placeholder="Dirección o colonia (opcional)"/>
+    <input class="of-in" id="ofCode" placeholder="Código de descuento (opcional)"/>
+    <button class="wa-btn" onclick="sendOrder()"><span>📱</span> Enviar pedido por WhatsApp</button>
+  </div>`;
+}
+
+function rmFromCart(id){cart=cart.filter(x=>x.id!==id);updateBadge();renderCart();}
+
+async function sendOrder(){
+  const name=document.getElementById('ofName').value.trim();
+  const phone=document.getElementById('ofPhone').value.trim();
+  const vendorId=document.getElementById('ofVendor').value;
+  const pointId=document.getElementById('ofPoint').value;
+  if(!name||!phone){showToast('⚠️ Ingresa tu nombre y WhatsApp');return;}
+  if(!vendorId){showToast('⚠️ Selecciona con quién hacer tu pedido');return;}
+  if(!pointId){showToast('⚠️ Selecciona punto de entrega');return;}
+  const vendor=VENDORS.find(v=>v.id===vendorId);
+  const now=new Date();
+  const isToday=now.getHours()<10;
+  const deliveryDay=isToday?'HOY':'MAÑANA';
+  const pointLabel=pointId==='skydrop'?'Envío Skydrop':points.find(p=>p.id===pointId)?.name||'';
+  const zone=pointId==='skydrop'?'Skydrop':(points.find(p=>p.id===pointId)?.zone||'');
+  const code=document.getElementById('ofCode').value.trim().toUpperCase();
+  const address=document.getElementById('ofAddress').value.trim();
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
+
+  let msg=`🛒 *NUEVO PEDIDO — MR. HUMO CLUB*\n\n`;
+  msg+=`👤 *Cliente:* ${name}\n`;
+  msg+=`📱 *WhatsApp:* ${phone}\n`;
+  msg+=`🧑‍💼 *Vendedor:* ${vendor.name}\n`;
+  msg+=`📦 *Entrega:* ${deliveryDay} · ${pointLabel}\n`;
+  if(address)msg+=`📍 *Dirección:* ${address}\n`;
+  msg+=`\n*PRODUCTOS:*\n`;
+  cart.forEach(i=>{msg+=`• ${i.product.brand} ${i.product.name} (${i.flavor}) x${i.qty} = $${(i.price*i.qty).toLocaleString('es-MX')} [${i.mode==='mayo'?'Mayoreo':'Menudeo'}]\n`;});
+  msg+=`\n💰 *TOTAL: $${sub.toLocaleString('es-MX')} MXN*`;
+  if(code)msg+=`\n🏷️ Código: ${code}`;
+  msg+=`\n\n⏰ ${isToday?'Antes de 10 AM ✅':'Después de 10 AM — entrega mañana 📅'}`;
+
+  window.open(`https://wa.me/${vendor.number}?text=${encodeURIComponent(msg)}`,'_blank');
+
+  if(SHEETS_URL&&SHEETS_URL!=='TU_URL_DE_APPS_SCRIPT_AQUI'){
+    try{
+      await fetch(SHEETS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({fecha:now.toLocaleDateString('es-MX'),hora:now.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}),cliente:name,whatsapp:phone,vendedor:vendor.name,productos:cart.map(i=>`${i.product.brand} ${i.product.name} (${i.flavor}) x${i.qty}`).join(' | '),tipo:cart[0]?.mode==='mayo'?'Mayoreo':'Menudeo',total:sub,punto:pointLabel,zona:zone,entrega:deliveryDay,direccion:address||'',codigo:code||'',estado:'Pendiente'})
+      });
+    }catch(e){}
+  }
+
+  cart=[];updateBadge();
+  showToast('✅ Pedido enviado — ¡gracias FAMILY!');
+  setTimeout(closeCart,1400);
+}
+
+// ═══════════════════════════════════
+// MODE SWITCHER
+// ═══════════════════════════════════
+function toggleMode(){
+  if(appMode==='store'){
+    appMode='login';
+    document.getElementById('storeView').style.display='none';
+    document.getElementById('cartView').style.display='none';
+    document.getElementById('adminView').style.display='none';
+    document.getElementById('loginScreen').style.display='flex';
+    document.getElementById('modeFab').textContent='← Tienda';
+  } else {
+    goStore();
+  }
+}
+function goStore(){
+  appMode='store';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminView').style.display='none';
+  document.getElementById('cartView').style.display='none';
+  document.getElementById('storeView').style.display='flex';
+  document.getElementById('modeFab').textContent='⚙️ Admin';
+  document.getElementById('modeFab').style.display='block';
+  renderProds();
+}
+
+// ═══════════════════════════════════
+// ADMIN AUTH
+// ═══════════════════════════════════
+let selRole='admin';
+document.querySelectorAll('.rchip').forEach(c=>{
+  c.addEventListener('click',()=>{document.querySelectorAll('.rchip').forEach(x=>x.classList.remove('active'));c.classList.add('active');selRole=c.dataset.role;});
+});
+document.getElementById('loginPass').addEventListener('keydown',e=>e.key==='Enter'&&doLogin());
+
+function doLogin(){
+  const pass=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginErr');
+  if(PASSWORDS[selRole]===pass){
+    currentRole=selRole;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminView').style.display='flex';
+    appMode='admin';
+    document.getElementById('modeFab').textContent='← Tienda';
+    initAdmin();err.style.display='none';
+  } else {err.style.display='block';}
+}
+function doLogout(){
+  currentRole=null;
+  document.getElementById('adminView').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPass').value='';
+}
+
+// ═══════════════════════════════════
+// ADMIN INIT
+// ═══════════════════════════════════
+const TABS_ROLE={admin:['inventory','promos','points','users','settings'],vendedor:['inventory','promos'],repartidor:['points']};
+const TAB_META={inventory:{icon:'📦',label:'Inventario'},promos:{icon:'🏷️',label:'Promos'},points:{icon:'🗺️',label:'Entregas'},users:{icon:'👥',label:'Equipo'},settings:{icon:'⚙️',label:'Ajustes'}};
+
+function initAdmin(){
+  const rb=document.getElementById('roleBadge');
+  rb.className='rbadge '+currentRole;
+  rb.textContent=currentRole==='admin'?'👑 Admin':currentRole==='vendedor'?'🛒 Vendedor':'🛵 Repartidor';
+  const tabs=TABS_ROLE[currentRole];
+  adminTab=tabs[0];
+  document.getElementById('adminTabs').innerHTML=tabs.map(t=>`<div class="a-tab${t===adminTab?' active':''}" onclick="swTab('${t}')"><span class="ti">${TAB_META[t].icon}</span>${TAB_META[t].label}</div>`).join('');
+  document.getElementById('adminBnav').innerHTML=tabs.map(t=>`<div class="abn${t===adminTab?' active':''}" onclick="swTab('${t}')"><span class="bi">${TAB_META[t].icon}</span>${TAB_META[t].label}</div>`).join('');
+  renderATab(adminTab);
+}
+
+function swTab(tab){
+  adminTab=tab;
+  document.querySelectorAll('.a-tab').forEach(x=>x.classList.toggle('active',x.textContent.includes(TAB_META[tab].label)));
+  document.querySelectorAll('.abn').forEach(x=>x.classList.toggle('active',x.textContent.includes(TAB_META[tab].label)));
+  renderATab(tab);
+  document.getElementById('adminContent').scrollTop=0;
+}
+
+function renderATab(tab){
+  const el=document.getElementById('adminContent');
+  if(tab==='inventory')el.innerHTML=renderAInv();
+  else if(tab==='promos')el.innerHTML=renderAPromos();
+  else if(tab==='points')el.innerHTML=renderAPts();
+  else if(tab==='users')el.innerHTML=renderAUsers();
+  else if(tab==='settings')el.innerHTML=renderASettings();
+}
+
+// ── INVENTORY ──
+function renderAInv(){
+  const can=currentRole!=='repartidor';
+  const tot=products.length,inS=products.filter(p=>p.stock>0).length,out=products.filter(p=>p.stock===0).length;
+  return `
+  <div class="a-head"><div class="a-title">Inven<span>tario</span></div>${can?`<button class="a-addbtn" onclick="openProdModal()">＋ Producto</button>`:''}</div>
+  <div class="a-stats">
+    <div class="a-stat"><div class="a-stat-n">${tot}</div><div class="a-stat-l">Total</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:#00E676">${inS}</div><div class="a-stat-l">En stock</div></div>
+    <div class="a-stat"><div class="a-stat-n" style="color:var(--pink)">${out}</div><div class="a-stat-l">Agotados</div></div>
+  </div>
+  <input class="a-srch" placeholder="🔍  Buscar..." oninput="filterAInv(this.value)"/>
+  <div id="aProdList">${renderAProdList(products)}</div>`;
+}
+
+function renderAProdList(list){
+  const can=currentRole!=='repartidor';
+  return list.map(p=>{
+    const sc=p.stock===0?'out':p.stock<=10?'low':'ok';
+    const st=p.stock===0?'Agotado':p.stock<=10?'⚠ '+p.stock:p.stock;
+    const img=p.img?`<img src="${p.img}" alt="">`:'📦';
+    return `<div class="a-prod">
+      <div class="ap-img">${img}</div>
+      <div class="ap-info">
+        <div class="ap-name">${p.brand} ${p.name}</div>
+        <div class="ap-sub">${p.flavors.length} sabores · ${p.cat}</div>
+        <div class="ap-prices"><span class="apt m">$${p.priceMenu}</span><span class="apt y">$${p.priceMayo} may</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+        <div class="a-stk ${sc}">${st}</div>
+        ${can?`<div class="a-prod-btns"><div class="ico-btn" onclick="openProdModal('${p.id}')">✏️</div><div class="ico-btn" onclick="confDel('producto','${p.id}')">🗑️</div></div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterAInv(q){
+  const f=products.filter(p=>(p.brand+' '+p.name).toLowerCase().includes(q.toLowerCase()));
+  document.getElementById('aProdList').innerHTML=renderAProdList(f);
+}
+
+// product modal
+function openProdModal(id=null){
+  editingId=id;editingFlavors=[];
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('mProdTitle').textContent=id?'Editar Producto':'Nuevo Producto';
+  document.getElementById('fBrand').value=p?.brand||'';
+  document.getElementById('fName').value=p?.name||'';
+  document.getElementById('fImgUrl').value=p?.img||'';
+  document.getElementById('fPMenu').value=p?.priceMenu||'';
+  document.getElementById('fPMayo').value=p?.priceMayo||'';
+  document.getElementById('fStock').value=p?.stock!==undefined?p.stock:'';
+  document.getElementById('fCat').value=p?.cat||'vape';
+  const prev=document.getElementById('aImgPreview');
+  if(p?.img){prev.src=p.img;prev.style.display='block';}else{prev.style.display='none';}
+  editingFlavors=p?[...p.flavors]:[];
+  renderAFlavors();
+  document.getElementById('mProduct').classList.add('open');
+}
+
+function renderAFlavors(){
+  document.getElementById('adminFlavors').innerHTML=editingFlavors.map((f,i)=>
+    `<div class="ftag">${f}<span class="frm" onclick="rmFlv(${i})">×</span></div>`
+  ).join('');
+}
+function addFlv(){
+  const v=document.getElementById('flvIn').value.trim();
+  if(v&&!editingFlavors.includes(v)){editingFlavors.push(v);renderAFlavors();}
+  document.getElementById('flvIn').value='';
+}
+function rmFlv(i){editingFlavors.splice(i,1);renderAFlavors();}
+
+function handleImg(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{const p=document.getElementById('aImgPreview');p.src=ev.target.result;p.style.display='block';document.getElementById('fImgUrl').value='';};
+  r.readAsDataURL(f);
+}
+function prevUrl(url){
+  const p=document.getElementById('aImgPreview');
+  if(url){p.src=url;p.style.display='block';}else{p.style.display='none';}
+}
+
+function saveProduct(){
+  const brand=document.getElementById('fBrand').value.trim();
+  const name=document.getElementById('fName').value.trim();
+  if(!brand||!name){showToast('⚠️ Completa marca y nombre');return;}
+  const prev=document.getElementById('aImgPreview');
+  const img=document.getElementById('fImgUrl').value.trim()||(prev.style.display!=='none'?prev.src:'');
+  const obj={id:editingId||'p'+Date.now(),brand,name,img,flavors:[...editingFlavors],
+    priceMenu:+document.getElementById('fPMenu').value||0,
+    priceMayo:+document.getElementById('fPMayo').value||0,
+    stock:+document.getElementById('fStock').value||0,
+    cat:document.getElementById('fCat').value};
+  if(editingId){const i=products.findIndex(x=>x.id===editingId);products[i]=obj;}
+  else{products.unshift(obj);}
+  showToast(editingId?'✅ Producto actualizado':'✅ Producto agregado');
+  closeM('mProduct');renderATab('inventory');renderProds();renderBrands();
+}
+
+// ── PROMOS ──
+function renderAPromos(){
+  return `
+  <div class="a-head"><div class="a-title">Promo<span>ciones</span></div><button class="a-addbtn" onclick="openPromoModal()">＋ Promo</button></div>
+  ${promos.map(p=>`
+  <div class="promo-card">
+    <div class="pc-top">
+      <div><div class="pc-code">${p.code}</div><div class="pc-desc">${p.desc}</div></div>
+      <button class="tog${p.active?' on':''}" onclick="togPromo('${p.id}')"></button>
+    </div>
+    <div class="pc-meta">
+      <span class="pc-pill">${p.type==='pct'?p.value+'% off':p.type==='fixed'?'$'+p.value+' off':'Envío gratis'}</span>
+      ${p.expiry?`<span class="pc-pill">Hasta ${p.expiry}</span>`:''}
+      <span class="pc-pill${p.active?' on':''}">${p.active?'Activo':'Inactivo'}</span>
+      <span class="pc-pill" style="cursor:pointer;color:var(--pink)" onclick="confDel('promo','${p.id}')">Eliminar</span>
+    </div>
+  </div>`).join('')}`;
+}
+function openPromoModal(){document.getElementById('pCode').value='';document.getElementById('pDesc').value='';document.getElementById('pType').value='pct';document.getElementById('pVal').value='';document.getElementById('pExpiry').value='';document.getElementById('mPromo').classList.add('open');}
+function savePromo(){
+  const code=document.getElementById('pCode').value.trim().toUpperCase();
+  if(!code){showToast('⚠️ Ingresa el código');return;}
+  promos.push({id:'pr'+Date.now(),code,desc:document.getElementById('pDesc').value.trim(),type:document.getElementById('pType').value,value:+document.getElementById('pVal').value||0,expiry:document.getElementById('pExpiry').value,active:true});
+  showToast('✅ Promoción guardada');closeM('mPromo');renderATab('promos');
+}
+function togPromo(id){const p=promos.find(x=>x.id===id);if(p){p.active=!p.active;renderATab('promos');}}
+
+// ── POINTS ──
+const ZN={N:'Norte',C:'Centro',S:'Sur',O:'Oriente',E:'Express'};
+function renderAPts(){
+  const can=currentRole==='admin';
+  const byZ={};points.forEach(p=>{if(!byZ[p.zone])byZ[p.zone]=[];byZ[p.zone].push(p);});
+  return `
+  <div class="a-head"><div class="a-title">Puntos de <span>Entrega</span></div>${can?`<button class="a-addbtn" onclick="openPtModal()">＋ Punto</button>`:''}</div>
+  ${Object.keys(byZ).map(z=>`
+    <div class="sg-title">Zona ${ZN[z]||z}</div>
+    ${byZ[z].map(pt=>`
+    <div class="pt-card">
+      <div class="pt-zone z${pt.zone}">${pt.zone}</div>
+      <div class="pt-info"><div class="pt-name">${pt.name}</div><div class="pt-time">🕐 ${pt.time}</div><span class="pt-type ${pt.type==='free'?'tt-free':'tt-paid'}">${pt.type==='free'?'Gratis':'Con recargo'}</span></div>
+      ${can?`<div class="a-prod-btns"><div class="ico-btn" onclick="openPtModal('${pt.id}')">✏️</div><div class="ico-btn" onclick="confDel('punto','${pt.id}')">🗑️</div></div>`:''}
+    </div>`).join('')}
+  `).join('')}`;
+}
+function openPtModal(id=null){
+  editingId=id;const pt=id?points.find(x=>x.id===id):null;
+  document.getElementById('mPtTitle').textContent=id?'Editar Punto':'Nuevo Punto';
+  document.getElementById('ptName').value=pt?.name||'';
+  document.getElementById('ptZone').value=pt?.zone||'N';
+  document.getElementById('ptTime').value=pt?.time||'';
+  document.getElementById('ptType').value=pt?.type||'free';
+  document.getElementById('mPoint').classList.add('open');
+}
+function savePoint(){
+  const name=document.getElementById('ptName').value.trim();
+  if(!name){showToast('⚠️ Ingresa el nombre');return;}
+  const obj={id:editingId||'pt'+Date.now(),name,zone:document.getElementById('ptZone').value,time:document.getElementById('ptTime').value.trim(),type:document.getElementById('ptType').value};
+  if(editingId){const i=points.findIndex(x=>x.id===editingId);points[i]=obj;}else{points.push(obj);}
+  showToast(editingId?'✅ Punto actualizado':'✅ Punto agregado');
+  closeM('mPoint');renderATab('points');renderPts();
+}
+
+// ── USERS ──
+const RI={admin:'👑',vendedor:'🛒',repartidor:'🛵'};
+function renderAUsers(){
+  return `
+  <div class="a-head"><div class="a-title">Equi<span>po</span></div><button class="a-addbtn" onclick="openUserModal()">＋ Usuario</button></div>
+  ${users.map(u=>`
+  <div class="u-card">
+    <div class="u-av">${RI[u.role]||'👤'}</div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#fff">${u.name}</div><span class="rbadge ${u.role}" style="margin-top:4px;display:inline-block">${u.role}</span></div>
+    ${u.id!=='u1'?`<div class="ico-btn" onclick="confDel('usuario','${u.id}')">🗑️</div>`:''}
+  </div>`).join('')}`;
+}
+function openUserModal(){document.getElementById('uName').value='';document.getElementById('uRole').value='vendedor';document.getElementById('uPass').value='';document.getElementById('mUser').classList.add('open');}
+function saveUser(){
+  const name=document.getElementById('uName').value.trim();
+  const pass=document.getElementById('uPass').value.trim();
+  if(!name||!pass){showToast('⚠️ Completa nombre y contraseña');return;}
+  users.push({id:'u'+Date.now(),name,role:document.getElementById('uRole').value,pass});
+  showToast('✅ Usuario creado');closeM('mUser');renderATab('users');
+}
+
+// ── SETTINGS ──
+function renderASettings(){
+  return `
+  <div class="a-head"><div class="a-title">Ajus<span>tes</span></div></div>
+  <div class="sg-title">Negocio</div>
+  <div class="s-item"><div class="s-left"><div class="s-ico">🏪</div><div><div class="s-t">Nombre</div><div class="s-s">Mr. Humo Club</div></div></div><div class="s-arr">›</div></div>
+  <div class="s-item"><div class="s-left"><div class="s-ico">⏰</div><div><div class="s-t">Corte de pedidos</div><div class="s-s">Antes 10 AM = entrega hoy</div></div></div><div class="s-arr">›</div></div>
+  <div class="sg-title">Vendedores WhatsApp</div>
+  ${VENDORS.map(v=>`<div class="s-item"><div class="s-left"><div class="s-ico">📱</div><div><div class="s-t">${v.name}</div><div class="s-s">${v.number}</div></div></div><div class="s-arr">›</div></div>`).join('')}
+  <div class="sg-title">Google Sheets</div>
+  <div class="s-item"><div class="s-left"><div class="s-ico">📊</div><div><div class="s-t">Registro de pedidos</div><div class="s-s">Conectado ✅</div></div></div><div class="s-arr">›</div></div>
+  <div class="sg-title">Envíos</div>
+  <div class="s-item"><div class="s-left"><div class="s-ico">📦</div><div><div class="s-t">Skydrop</div><div class="s-s">Mín $200 · Lun–Jue</div></div></div><div class="s-arr">›</div></div>
+  <div class="sg-title">Seguridad</div>
+  <div class="s-item" onclick="showToast('🔐 Próximamente')"><div class="s-left"><div class="s-ico">🔐</div><div><div class="s-t">Cambiar contraseña</div><div class="s-s">Contraseña actual: MR2024</div></div></div><div class="s-arr">›</div></div>
+  <div style="text-align:center;padding:28px 0;font-size:11px;color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;">Mr. Humo Club v3.0 · Pachuca, Hidalgo 🇲🇽</div>`;
+}
+
+// ═══════════════════════════════════
+// UTILS
+// ═══════════════════════════════════
+function closeM(id){document.getElementById(id).classList.remove('open');}
+
+function confDel(type,id){
+  document.getElementById('confMsg').textContent=`¿Seguro que quieres eliminar este ${type}?`;
+  document.getElementById('confYes').onclick=()=>{
+    if(type==='producto'){products=products.filter(x=>x.id!==id);renderATab('inventory');renderProds();renderBrands();}
+    else if(type==='promo'){promos=promos.filter(x=>x.id!==id);renderATab('promos');}
+    else if(type==='punto'){points=points.filter(x=>x.id!==id);renderATab('points');renderPts();}
+    else if(type==='usuario'){users=users.filter(x=>x.id!==id);renderATab('users');}
+    showToast('🗑️ Eliminado');closeConf();
+  };
+  document.getElementById('confOv').classList.add('open');
+}
+function closeConf(){document.getElementById('confOv').classList.remove('open');}
+
+let toastT;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+document.querySelectorAll('.m-ov,.sheet-ov').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');});
+});
+document.getElementById('confOv').addEventListener('click',e=>{if(e.target===document.getElementById('confOv'))closeConf();});
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+initStore();
+</script>
+</body>
+</html>
